@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,81 +8,80 @@ datasource db {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String  @map("user_id")
-  type               String
-  provider           String
-  providerAccountId  String  @map("provider_account_id")
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
- 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
- 
+
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique @map("session_token")
   userId       String   @map("user_id")
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@map("sessions")
 }
- 
+
 model User {
   id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
   emailVerified DateTime? @map("email_verified")
+  logs          Logs[]    @relation("Logs")
   accounts      Account[]
   sessions      Session[]
-  logs          Logs[] @relation("Logs")
- 
+
   @@map("users")
 }
- 
+
 model VerificationToken {
   identifier String
   token      String
   expires    DateTime
- 
+
   @@unique([identifier, token])
   @@map("verificationtokens")
 }
 
 model Team {
   id               Int      @id @default(autoincrement())
-  TeamName         String   @unique
+  GoalsScored      Int
   GroupNumber      Int      @db.SmallInt
-  GoalsScored      Int 
+  NormalPoints     Int
   RegistrationDate DateTime
-  NormalPoints     Int 
-  TieBreakerPoints Int      
-  HomeMatches      Match[]  @relation("HomeTeamMatches")  
-  AwayMatches      Match[]  @relation("AwayTeamMatches") 
+  TeamName         String   @unique
+  TieBreakerPoints Int
+  AwayMatches      Match[]  @relation("AwayTeamMatches")
+  HomeMatches      Match[]  @relation("HomeTeamMatches")
 }
 
 model Match {
-  id         Int      @id @default(autoincrement())
-  HomeTeam   Team     @relation("HomeTeamMatches", fields: [HomeTeamId], references: [id])  
-  HomeTeamId Int
-  AwayTeam   Team     @relation("AwayTeamMatches", fields: [AwayTeamId], references: [id]) 
+  id         Int  @id @default(autoincrement())
+  AwayGoals  Int  @db.SmallInt
   AwayTeamId Int
-  HomeGoals  Int      @db.SmallInt
-  AwayGoals  Int      @db.SmallInt
+  HomeGoals  Int  @db.SmallInt
+  HomeTeamId Int
+  AwayTeam   Team @relation("AwayTeamMatches", fields: [AwayTeamId], references: [id])
+  HomeTeam   Team @relation("HomeTeamMatches", fields: [HomeTeamId], references: [id])
 }
 
 model Logs {
-  id         Int      @id @default(autoincrement())
-  Message    String 
-  User       User      @relation("Logs", fields: [UserId], references: [id]) 
-  UserId     String
+  id      Int    @id @default(autoincrement())
+  Message String
+  UserId  String
+  User    User   @relation("Logs", fields: [UserId], references: [id])
 }

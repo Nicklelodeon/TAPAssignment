@@ -1,6 +1,6 @@
 "use client";
 import { AddTeamForm } from "./AddTeamForm/AddTeamForm";
-import { TeamTable } from "./TeamTable";
+import { EditTeamTable } from "./EditTeamTable";
 
 export const ManageTeams = () => {
   return (
@@ -8,7 +8,7 @@ export const ManageTeams = () => {
       <div>
         <AddTeamForm/>
 
-        <TeamTable />
+        <EditTeamTable />
       </div>
     </div>
   );

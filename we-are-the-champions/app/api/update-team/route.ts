@@ -10,7 +10,6 @@ export async function PUT(req: NextRequest) {
       where: { id: team.id },
       data: team,
     });
-    console.log(updateTeam);
 
     return NextResponse.json(updateTeam, { status: 200 });
   } catch (error) {

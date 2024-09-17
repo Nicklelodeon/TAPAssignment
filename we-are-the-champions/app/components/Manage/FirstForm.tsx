@@ -5,16 +5,16 @@ import { Box, Button, Flex, Text, Textarea } from "@chakra-ui/react";
 
 interface IFirstFormProps {
   onSubmit: (formData: { inputText: string }) => void;
+  textPlaceholder: string;
 }
 
-export const FirstForm: React.FC<IFirstFormProps> = ({ onSubmit }) => {
+export const FirstForm: React.FC<IFirstFormProps> = ({ onSubmit, textPlaceholder }) => {
   const schema = z.object({
     inputText: z.string().min(1, "Input is required"),
   });
 
   type FormData = z.infer<typeof schema>;
 
-  // Initialize useForm with zodResolver for validation
   const {
     control,
     handleSubmit,
@@ -36,7 +36,7 @@ export const FirstForm: React.FC<IFirstFormProps> = ({ onSubmit }) => {
                 rows={10}
                 resize="none"
                 overflow="auto"
-                placeholder="Enter your text here..."
+                placeholder={textPlaceholder}
                 borderColor="gray.300"
                 focusBorderColor="blue.500"
               />

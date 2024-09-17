@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/utils/prisma";
-import { FormTeam } from "@/app/components/Manage/constants";
-import { dateParser } from "@/app/components/Manage/constants";
+import { TeamForm } from "@/app/components/Manage/constants";
 import { Team } from "@prisma/client";
+import { dateParser } from "@/app/utils/constants";
 
 export async function POST(req: NextRequest) {
     try {
-    //   const prisma = new PrismaClient();
       const {teams} = await req.json();
       
-      const schemaTeams: Team[] = teams.map((team: FormTeam) => (
+      const schemaTeams: Team[] = teams.map((team: TeamForm) => (
         {
             TeamName: team.TeamName,
             GroupNumber: team.GroupNumber,
@@ -23,12 +22,10 @@ export async function POST(req: NextRequest) {
       if (!Array.isArray(schemaTeams)) {
         return NextResponse.json({ message: "Invalid data format" }, { status: 400 });
       }
-      console.log(schemaTeams)
       
-      const insertAllTeams = await prisma.team.createMany({
+      await prisma.team.createMany({
         data: schemaTeams
       })
-      console.log(insertAllTeams);
       
       return NextResponse.json({ message: "Successfully added teams " }, { status: 200 });
   

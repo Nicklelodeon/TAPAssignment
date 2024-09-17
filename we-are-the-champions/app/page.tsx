@@ -1,9 +1,9 @@
-import NavBar from "./components/navigation/navbar/page";
+import { Box } from "@chakra-ui/react";
 export default function Home() {
   return (
-      <div>
-        <NavBar />
-        <div>Welcome to We-Are-The-Champions</div>
-      </div>
+      <Box>
+        <Box>Welcome to We-Are-The-Champions</Box>
+      </Box>
+
   );
 }

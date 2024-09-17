@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AllInput, FormMatch, FormTeam } from "./constants";
+import { AllInput, MatchForm, TeamForm } from "./constants";
 import {
   Controller,
   FieldError,
@@ -23,11 +23,11 @@ import {
 import { Match, Team } from "@prisma/client";
 
 export interface Form {
-  objectArray: FormTeam[] | FormMatch[];
+  objectArray: TeamForm[] | MatchForm[];
   setIsFirstForm: (value: boolean) => void;
   refetch: () => void;
   schema: Zod.AnyZodObject;
-  defaultValue: FormTeam | FormMatch;
+  defaultValue: TeamForm | MatchForm;
   checkGroupSize?: boolean;
   data?: Team[] | Match[];
   onSubmitSecondForm: (results: { [x: string]: any }) => void;

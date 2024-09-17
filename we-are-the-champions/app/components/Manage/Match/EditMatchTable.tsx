@@ -11,20 +11,24 @@ import {
   Button,
   Box,
   Input,
+  Flex,
+  VStack,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Match } from "@prisma/client";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { singleMatchSchema } from "../constants";
+import { MatchWithForeignKey } from "@/app/utils/constants";
+import toast from "react-hot-toast";
+import { matchKeys, singleMatchSchema } from "./constants";
 
-interface IMatchTableProps {
-  data: Match[];
+interface IEditMatchTableProps {
+  data: MatchWithForeignKey[];
   refetchMatch: () => void;
 }
 
-export const MatchTable: React.FC<IMatchTableProps> = ({
+export const EditMatchTable: React.FC<IEditMatchTableProps> = ({
   data,
   refetchMatch,
 }) => {
@@ -62,29 +66,30 @@ export const MatchTable: React.FC<IMatchTableProps> = ({
   };
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
-    console.log("here");
     const updatedData = {
       ...editingMatch,
       // Convert team name back to ID
-      NewHomeTeamId: teamNameToId.get(data.HomeTeam) ?? 0, 
-      NewAwayTeamId: teamNameToId.get(data.AwayTeam) ?? 0, 
+      NewHomeTeamId: teamNameToId.get(data.HomeTeam) ?? 0,
+      NewAwayTeamId: teamNameToId.get(data.AwayTeam) ?? 0,
       NewHomeGoals: data.HomeTeamGoal,
       NewAwayGoals: data.AwayTeamGoal,
     };
-    console.log(updatedData);
+
     const response = await fetch("/api/update-match", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedData),
     });
 
-    if (response.ok) {
-      setEditingMatch(null);
-      refetch();
-      refetchMatch();
+    if (!response.ok) {
+      toast.error("Error updating match");
+      return;
     }
+    toast.success("Match successfully updated");
+    setEditingMatch(null);
+    refetch();
+    refetchMatch();
   };
-  console.log(errors);
   const handleCancel = () => {
     setEditingMatch(null);
   };
@@ -96,27 +101,30 @@ export const MatchTable: React.FC<IMatchTableProps> = ({
       body: JSON.stringify(item),
     });
 
-    if (response.ok) {
-      refetch();
-      refetchMatch();
+    if (!response.ok) {
+      toast.error("Error deleting match");
+      return;
     }
+    toast.success("Successfully deleted match");
+    refetch();
+    refetchMatch();
   };
 
   return (
     <Box>
+      <Box m={4} textDecoration="underline">
+        Matches
+      </Box>
       <Table variant="simple">
         <Thead>
           <Tr>
-            <Th>Home Team</Th>
-            <Th>Away Team</Th>
-            <Th>Home Goals</Th>
-            <Th>Away Goals</Th>
+            {matchKeys.map((key, index) => <Th key={index}>{key}</Th>)}
             <Th>Edit</Th>
             <Th>Delete</Th>
           </Tr>
         </Thead>
         <Tbody>
-          {data.map((item: Match) => (
+          {data.map((item: MatchWithForeignKey) => (
             <Tr key={item.id}>
               <Td>
                 {editingMatch?.id === item.id ? (
@@ -127,9 +135,10 @@ export const MatchTable: React.FC<IMatchTableProps> = ({
                       <Input {...field} type="string" placeholder="Home Team" />
                     )}
                   />
-                ) : (
-                  teamIdToName.get(item.HomeTeamId) ?? "Unknown"
-                )}
+                ) :
+                  (item.HomeTeam.TeamName
+                  )
+                }
                 {editingMatch?.id === item.id && errors.HomeTeam && (
                   <p className="text-red-500">{errors.HomeTeam.message}</p>
                 )}
@@ -145,8 +154,9 @@ export const MatchTable: React.FC<IMatchTableProps> = ({
                     )}
                   />
                 ) : (
-                  teamIdToName.get(item.AwayTeamId) ?? "Unknown"
-                )}
+                  item.AwayTeam.TeamName
+                )
+                }
                 {editingMatch?.id === item.id && errors.AwayTeam && (
                   <p className="text-red-500">{errors.AwayTeam.message}</p>
                 )}
@@ -160,7 +170,7 @@ export const MatchTable: React.FC<IMatchTableProps> = ({
                     render={({ field }) => (
                       <Input
                         {...field}
-                        type="string"
+                        type="number"
                         placeholder="Home Goals"
                         onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -179,7 +189,7 @@ export const MatchTable: React.FC<IMatchTableProps> = ({
                     render={({ field }) => (
                       <Input
                         {...field}
-                        type="string"
+                        type="number"
                         placeholder="Away Goals"
                         onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -192,23 +202,17 @@ export const MatchTable: React.FC<IMatchTableProps> = ({
 
               <Td>
                 {editingMatch?.id === item.id ? (
-                  <>
-                    <Button
-                      colorScheme="blue"
-                      onClick={() => {
-                        console.log("Button clicked"); 
-                        handleSubmit((data) => {
-                          console.log("Form is being submitted", data); 
-                          onSubmit(data);
-                        })();
-                      }}
-                    >
-                      Save
-                    </Button>
-                    <Button colorScheme="red" onClick={handleCancel} ml={2}>
-                      Cancel
-                    </Button>
-                  </>
+                  <Flex justifyContent="center" alignItems="center">
+                    <VStack spacing={2} align="center">
+                      <Button colorScheme="blue" onClick={handleSubmit(onSubmit)} width="100%">
+                        Save
+                      </Button>
+                      <Button colorScheme="red" onClick={handleCancel} width="100%">
+                        Cancel
+                      </Button>
+                    </VStack>
+
+                  </Flex>
                 ) : (
                   <Button colorScheme="blue" onClick={() => handleEdit(item)}>
                     Edit

@@ -11,16 +11,20 @@ import {
   Input,
   Button,
   Box,
+  Flex,
+  VStack,
 } from "@chakra-ui/react";
 import moment from "moment";
 import { z } from "zod";
-import { singleTeamSchemaWithoutGroupNumber } from "../constants";
 import { Team } from "@prisma/client";
 import { useTeamContext } from "@/app/utils/context";
+import Link from "next/link";
+import toast from "react-hot-toast";
+import { singleTeamSchemaWithoutGroupNumber, teamKeys } from "./constants";
 
 
-export const TeamTable = () => {
-  const {data, teamNames, refetch} = useTeamContext();
+export const EditTeamTable = () => {
+  const { data, teamNames, refetch } = useTeamContext();
 
   const [currTeamNames, setCurrentTeamNames] = useState(teamNames);
   const [groupNumber, setGroupNumber] = useState(1);
@@ -62,13 +66,11 @@ export const TeamTable = () => {
   };
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
-    console.log("test");
     const updatedData = {
       ...data,
       id: editingId,
       RegistrationDate: moment(data.RegistrationDate, "DD/MM").toDate(),
     };
-    console.log("test");
 
     const response = await fetch("/api/update-team", {
       method: "PUT",
@@ -76,11 +78,13 @@ export const TeamTable = () => {
       body: JSON.stringify(updatedData),
     });
 
-    if (response.ok) {
-      setEditingId(-1);
-      refetch();
-    } else {
+    if (!response.ok) {
+      toast.error("Error updating team");
+      return;
     }
+    toast.success("Successfully updated team");
+    setEditingId(-1);
+    refetch();
   };
 
   const handleCancel = () => {
@@ -94,29 +98,27 @@ export const TeamTable = () => {
       body: JSON.stringify(item.id),
     });
     if (response.ok) {
-      console.log("test");
       refetch();
     }
   }
 
   return (
     <Box>
-      <Button
-        colorScheme="teal"
-        mb={4}
-        onClick={() => setGroupNumber(groupNumber === 1 ? 2 : 1)}
-      >
-        Switch to Group {groupNumber === 1 ? 2 : 1}
-      </Button>
+      <Flex justifyContent="space-between" alignItems="center">
+        <Box m={4} textDecoration="underline" >Group Number: {groupNumber}</Box>
+        <Button
+          colorScheme="teal"
+          m={4}
+          onClick={() => setGroupNumber(groupNumber === 1 ? 2 : 1)}
+        >
+          Switch to Group {groupNumber === 1 ? 2 : 1}
+        </Button>
+      </Flex>
+
       <Table variant="simple">
         <Thead>
           <Tr>
-            <Th>Name</Th>
-            <Th>Registration Date</Th>
-            <Th>Group</Th>
-            <Th>Goals Scored</Th>
-            <Th>Normal Points</Th>
-            <Th>Tie Breaker Points</Th>
+            {teamKeys.map((key, index) => <Th key={index}>{key}</Th>)}
             <Th>Edit</Th>
             <Th>Delete</Th>
           </Tr>
@@ -134,7 +136,7 @@ export const TeamTable = () => {
                     )}
                   />
                 ) : (
-                  item.TeamName
+                  <Link href={`/teams/${item.id}`}>{item.TeamName}</Link>
                 )}
                 {editingId === item.id && errors.TeamName && (
                   <p className="text-red-500">{errors.TeamName.message}</p>
@@ -165,23 +167,22 @@ export const TeamTable = () => {
               <Td>{item.NormalPoints}</Td>
               <Td>{item.TieBreakerPoints}</Td>
               <Td>
-                {editingId === item.id ? (
-                  <>
-                    <Button colorScheme="blue" onClick={handleSubmit(onSubmit)}>
-                      Save
+                <Flex justifyContent="center" alignItems="center">
+                  {editingId === item.id ? (
+                    <VStack spacing={2} align="center">
+                      <Button colorScheme="blue" onClick={handleSubmit(onSubmit)} width="100%">
+                        Save
+                      </Button>
+                      <Button colorScheme="red" onClick={handleCancel} width="100%">
+                        Cancel
+                      </Button>
+                    </VStack>
+                  ) : (
+                    <Button colorScheme="blue" onClick={() => handleEdit(item)}>
+                      Edit
                     </Button>
-                    <Button colorScheme="red" onClick={handleCancel} ml={2}>
-                      Cancel
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    colorScheme="blue"
-                    onClick={() => handleEdit(item)}
-                  >
-                    Edit
-                  </Button>
-                )}
+                  )}
+                </Flex>
               </Td>
               <Td>
                 <Button

@@ -1,4 +1,4 @@
-import { ManageMatches } from "@/app/components/Manage/ManageMatches";
+import { ManageMatches } from "@/app/components/Manage/Match/ManageMatches";
 
 const Page = () => {
   return (

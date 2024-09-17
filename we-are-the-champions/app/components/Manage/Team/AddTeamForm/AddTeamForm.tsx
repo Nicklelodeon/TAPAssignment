@@ -4,12 +4,14 @@ import { useContext, useEffect, useState } from "react";
 
 import { FirstForm } from "../../FirstForm";
 import { SecondForm } from "../../SecondForm";
-import { FormTeam, multipleTeamSchema } from "../../constants";
+import { TeamForm} from "../../constants";
 import { TeamContext } from "@/app/utils/context";
+import toast from "react-hot-toast";
+import { multipleTeamSchema } from "../constants";
 
 export const AddTeamForm = () => {
   const [isFirstForm, setIsFirstForm] = useState(true);
-  const [teams, setTeams] = useState<FormTeam[]>([]);
+  const [teams, setTeams] = useState<TeamForm[]>([]);
   const { data, teamNames, refetch } = useContext(TeamContext);
   useEffect(() => {
     if (teams.length > 0) {
@@ -18,7 +20,7 @@ export const AddTeamForm = () => {
   }, [teams, setTeams]);
   const onSubmitFirstForm = (data: { inputText: string }) => {
     const rows = data.inputText.trim().split("\n");
-    const allTeams: FormTeam[] = [];
+    const allTeams: TeamForm[] = [];
 
     for (const row of rows) {
       const parts = row.split(" ");
@@ -49,16 +51,17 @@ export const AddTeamForm = () => {
     });
 
     if (!response.ok) {
+      toast.error("Error adding team");
       return;
     }
-
+    toast.success("Successfully added teams");
     refetch();
     setIsFirstForm(true);
   };
   return (
     <div>
       {isFirstForm ? (
-        <FirstForm onSubmit={onSubmitFirstForm} />
+        <FirstForm onSubmit={onSubmitFirstForm} textPlaceholder="Enter your teams here..."/>
       ) : (
         <SecondForm
           objectArray={teams}

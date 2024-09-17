@@ -8,7 +8,6 @@ export async function DELETE(req: NextRequest) {
     const updateTeam = await prisma.team.delete({
       where: { id: id },
     });
-    console.log(updateTeam);
 
     return NextResponse.json(updateTeam, { status: 200 });
   } catch (error) {

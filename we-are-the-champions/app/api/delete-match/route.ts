@@ -18,18 +18,18 @@ export async function DELETE(req: NextRequest) {
     const updateHomeTeam = prisma.team.update({
       where: { id: match.HomeTeamId },
       data: {
-        NormalPoints: { increment: normalPointsHomeTeam }, // Add normal points
-        TieBreakerPoints: { increment: tieBreakerPointsHomeTeam }, // Add tiebreaker points
-        GoalsScored: { decrement: match.HomeGoals }, // Add goals scored by home team
+        NormalPoints: { increment: normalPointsHomeTeam }, 
+        TieBreakerPoints: { increment: tieBreakerPointsHomeTeam },
+        GoalsScored: { decrement: match.HomeGoals },
       },
     });
 
     const updateAwayTeam = prisma.team.update({
       where: { id: match.AwayTeamId },
       data: {
-        NormalPoints: { increment: normalPointsAwayTeam }, // Add normal points
-        TieBreakerPoints: { increment: tieBreakerPointsAwayTeam }, // Add tiebreaker points
-        GoalsScored: { decrement: match.AwayGoals }, // Add goals scored by away team
+        NormalPoints: { increment: normalPointsAwayTeam }, 
+        TieBreakerPoints: { increment: tieBreakerPointsAwayTeam }, 
+        GoalsScored: { decrement: match.AwayGoals }, 
       },
     });
 

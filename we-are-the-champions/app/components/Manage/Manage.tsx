@@ -1,12 +1,14 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ManageMatches } from "./ManageMatches";
+import { ManageMatches } from "./Match/ManageMatches";
 import { ManageTeams } from "./Team/ManageTeams";
 import { Team } from "@prisma/client";
 import { useMemo, useState } from "react";
 import { TeamContext } from "@/app/utils/context";
-import { Box, Button } from "@chakra-ui/react";
+import { Box, Button, Flex } from "@chakra-ui/react";
+import toast from "react-hot-toast";
+import { CustomisedLoader } from "../ui/CustomisedLoader";
 
 export const Manage = () => {
   const { data, isLoading, refetch } = useQuery<Team[], Error>({
@@ -14,7 +16,8 @@ export const Manage = () => {
     queryFn: async () => {
       const response = await fetch("/api/get-teams", { method: "GET" });
       if (!response.ok) {
-        throw new Error("Failed to fetch teams");
+        toast.error("Error getting teams");
+        return;
       }
       return response.json();
     },
@@ -35,9 +38,9 @@ export const Manage = () => {
     const teamIdToName = new Map<number, string>();
     const teamNameToGroup = new Map<NamedCurve, number>();
     data?.forEach((team) => {
-        teamNameToId.set(team.TeamName, team.id);
-        teamIdToName.set(team.id, team.TeamName);
-        teamNameToGroup.set(team.TeamName, team.GroupNumber);
+      teamNameToId.set(team.TeamName, team.id);
+      teamIdToName.set(team.id, team.TeamName);
+      teamNameToGroup.set(team.TeamName, team.GroupNumber);
     })
     return [new Set(data?.map((teams) => teams.TeamName)), teamNameToId, teamIdToName, teamNameToGroup];
   }, [data]);
@@ -55,27 +58,31 @@ export const Manage = () => {
         }}
       >
         {isLoading ? (
-          <div></div>
-        ) : (
+          <CustomisedLoader />) : (
           <Box>
-            <Button
-              onClick={() => {
-                return onChange(true);
-              }}
-            >
-              Manage Team
-            </Button>
-            <Button
-              onClick={() => {
-                return onChange(false);
-              }}
-            >
-              Manage Matches
-            </Button>
+            <Flex justifyContent="center" mt={4} mb={4} gap={4}
+              top="80px"  >
+              <Button
+                colorScheme={isManageTeam ? "teal" : "gray"}
+                variant={isManageTeam ? "solid" : "outline"}
+                onClick={() => onChange(true)}
+              >
+                Manage Team
+              </Button>
+              <Button
+                colorScheme={!isManageTeam ? "teal" : "gray"}
+                variant={!isManageTeam ? "solid" : "outline"}
+                onClick={() => onChange(false)}
+              >
+                Manage Matches
+              </Button>
+            </Flex>
+
             {isManageTeam ? <ManageTeams /> : <ManageMatches />}
           </Box>
-        )}
-      </TeamContext.Provider>
-    </Box>
+        )
+        }
+      </TeamContext.Provider >
+    </Box >
   );
 };
