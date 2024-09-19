@@ -1,18 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from "@/app/utils/prisma";
-import { Match } from '@prisma/client';
 
-export interface TeamOutput {
-  id: number;
-  GoalsScored: number;
-  GroupNumber: number;
-  NormalPoints: number;
-  RegistrationDate: Date;
-  TeamName: string;
-  TieBreakerPoints: number;
-  HomeMatches: Match[],
-  AwayMatches: Match[]
-}
+
 
 export async function GET(req: NextRequest) {
     const { searchParams } = req.nextUrl;

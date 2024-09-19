@@ -1,15 +1,16 @@
 "use client";
-import { AddTeamForm } from "./AddTeamForm/AddTeamForm";
+import { Box, Divider } from "@chakra-ui/react";
+import { CreateTeamForm } from "./CreateTeamForm";
 import { EditTeamTable } from "./EditTeamTable";
 
 export const ManageTeams = () => {
   return (
-    <div>
-      <div>
-        <AddTeamForm/>
-
+    <Box>
+      <Box>
+        <CreateTeamForm/>
+        <Divider borderWidth="2px" my={4} />
         <EditTeamTable />
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };

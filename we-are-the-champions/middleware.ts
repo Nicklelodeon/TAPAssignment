@@ -9,12 +9,15 @@ interface CustomJWT extends JWT {
 export async function middleware(req: NextRequest) {
   const token = (await getToken({ req })) as CustomJWT | null;
 
+  const currentUrl = req.nextUrl.pathname;
+
+  // Redirect to sign-in if no token is found
   if (!token) {
-    const signInUrl = `${process.env.NEXT_PUBLIC_URL}/auth/signin`;
+    const signInUrl = `${process.env.NEXT_PUBLIC_URL}/auth/signin?callbackUrl=${encodeURIComponent(currentUrl)}`;
     return NextResponse.redirect(signInUrl);
   }
 
-  const expiryTime = token.exp; 
+  const expiryTime = token.exp;
   const currentTime = Math.floor(Date.now() / 1000);
 
 
@@ -27,5 +30,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/manage/:path*", "/logs/:path*"], 
+  matcher: ["/manage/:path*", "/logs/:path*"],
 };

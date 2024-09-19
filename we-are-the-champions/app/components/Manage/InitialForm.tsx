@@ -1,17 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, FieldError } from "react-hook-form";
 import { z } from "zod";
 import { Box, Button, Flex, Text, Textarea } from "@chakra-ui/react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { IInitialFormProps } from "./constants";
 
-interface IFirstFormProps {
-  onSubmit: (formData: { inputText: string }) => void;
-  textPlaceholder: string;
-}
+export const InitialForm: React.FC<IInitialFormProps> = ({ onSubmit, textPlaceholder, schema }) => {
 
-export const FirstForm: React.FC<IFirstFormProps> = ({ onSubmit, textPlaceholder }) => {
-  const schema = z.object({
-    inputText: z.string().min(1, "Input is required"),
-  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+
 
   type FormData = z.infer<typeof schema>;
 
@@ -22,6 +21,18 @@ export const FirstForm: React.FC<IFirstFormProps> = ({ onSubmit, textPlaceholder
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
+
+  const handleFormSubmit = async (data: { inputText: string }) => {
+    setIsSubmitting(true);
+    try {
+      await onSubmit(data);
+      toast.success("Processed form");
+    } catch (error) {
+      toast.error("Failed to process form");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Flex justifyContent="center" alignItems="center" flexDirection="column">
@@ -41,8 +52,8 @@ export const FirstForm: React.FC<IFirstFormProps> = ({ onSubmit, textPlaceholder
                 focusBorderColor="blue.500"
               />
               {errors.inputText && (
-                <Text color="red.500" fontSize="sm" mt={1}>
-                  {errors.inputText.message}
+                <Text color="red.500">
+                  {(errors.inputText as FieldError)?.message ?? ""}
                 </Text>
               )}
             </Box>
@@ -55,9 +66,11 @@ export const FirstForm: React.FC<IFirstFormProps> = ({ onSubmit, textPlaceholder
         px={4}
         py={2}
         rounded="lg"
-        onClick={handleSubmit(onSubmit)}
+        onClick={handleSubmit(handleFormSubmit)}
+        disabled={isSubmitting}
+        isLoading={isSubmitting}
       >
-        Submit
+        Process Form
       </Button>
     </Flex>
   );

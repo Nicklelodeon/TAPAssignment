@@ -84,4 +84,6 @@ model Logs {
   Message String
   UserId  String
   User    User   @relation("Logs", fields: [UserId], references: [id])
+  Date    DateTime 
+  LogType String 
 }

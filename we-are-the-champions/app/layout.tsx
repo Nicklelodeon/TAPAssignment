@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Providers from "./providers";
-import NavBar from "./components/navigation/navbar/page";
+import { NavBar } from "./components/navigation/navbar/NavBar";
+import { ToastContainer } from "./utils/toastcontainer";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,7 +32,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <NavBar />{children}</Providers>
+          <NavBar />
+          <ToastContainer/>{children}</Providers>
       </body>
     </html>
   );

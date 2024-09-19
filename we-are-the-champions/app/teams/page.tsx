@@ -1,9 +1,9 @@
 import { Team } from "@prisma/client";
-import { ViewTeamTable } from "../components/View/Team/ViewTeamTable";
+import { ViewTeamTable } from "../components/view/team/ViewTeamTable";
 
 const Page = async () => {
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/get-teams`, { method: "GET" });
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/get-teams`, { method: "GET", cache: "no-store"  });
     const data: Team[] = await response.json();
     return (
         <div>

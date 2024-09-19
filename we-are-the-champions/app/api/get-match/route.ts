@@ -6,6 +6,11 @@ export async function GET() {
   try {
 
     const getAllTeams = await prisma.match.findMany({
+      orderBy: [
+        {
+          id: 'desc', 
+        },
+      ],
       include: {
         AwayTeam: {
           select: {

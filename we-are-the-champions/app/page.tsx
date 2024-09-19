@@ -1,8 +1,10 @@
 import { Box } from "@chakra-ui/react";
+import { FloatingText } from "./components/ui/FloatingText";
+
 export default function Home() {
   return (
       <Box>
-        <Box>Welcome to We-Are-The-Champions</Box>
+        <FloatingText/>
       </Box>
 
   );

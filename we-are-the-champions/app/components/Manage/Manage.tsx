@@ -1,20 +1,23 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ManageMatches } from "./Match/ManageMatches";
-import { ManageTeams } from "./Team/ManageTeams";
-import { Team } from "@prisma/client";
+import { ManageMatches } from "./match/ManageMatches";
+import { ManageTeams } from "./team/ManageTeams";
 import { useMemo, useState } from "react";
 import { TeamContext } from "@/app/utils/context";
 import { Box, Button, Flex } from "@chakra-ui/react";
 import toast from "react-hot-toast";
 import { CustomisedLoader } from "../ui/CustomisedLoader";
+import { TeamWithForeignKey } from "@/app/utils/constants";
 
 export const Manage = () => {
-  const { data, isLoading, refetch } = useQuery<Team[], Error>({
+  const [isManageTeam, setIsManageTeam] = useState(true);
+
+  const { data, isLoading, isFetching, refetch } = useQuery<TeamWithForeignKey[], Error>({
     queryKey: ["teams"],
     queryFn: async () => {
-      const response = await fetch("/api/get-teams", { method: "GET" });
+      // used in edit teams to disable delete button if teams are associated with matches
+      const response = await fetch("/api/get-teams-with-foreign-key", { method: "GET" });
       if (!response.ok) {
         toast.error("Error getting teams");
         return;
@@ -22,9 +25,9 @@ export const Manage = () => {
       return response.json();
     },
     refetchOnWindowFocus: false,
+    enabled: isManageTeam === true
   });
 
-  const [isManageTeam, setIsManageTeam] = useState(true);
 
   const onChange = (manageTeam: boolean) => {
     if (manageTeam) {
@@ -50,11 +53,12 @@ export const Manage = () => {
       <TeamContext.Provider
         value={{
           data: data ?? [],
-          teamNames: teamNames,
-          refetch: refetch,
-          teamNameToId: teamNameToId,
-          teamIdToName: teamIdToName,
-          teamNameToGroup: teamNameToGroup
+          teamNames,
+          refetch,
+          teamNameToId,
+          teamIdToName,
+          teamNameToGroup,
+          isTeamFetching: isFetching
         }}
       >
         {isLoading ? (
@@ -78,7 +82,7 @@ export const Manage = () => {
               </Button>
             </Flex>
 
-            {isManageTeam ? <ManageTeams /> : <ManageMatches />}
+            {isManageTeam ? <ManageTeams /> : <ManageMatches isManageTeam={isManageTeam}/>}
           </Box>
         )
         }

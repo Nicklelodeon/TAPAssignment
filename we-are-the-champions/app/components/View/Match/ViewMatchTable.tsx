@@ -1,7 +1,6 @@
 
 "use client"
 
-import { MatchWithForeignKey } from "@/app/utils/constants";
 import {
     Table,
     Thead,
@@ -10,8 +9,10 @@ import {
     Tbody,
     Td,
     Box,
+    Flex,
+    Text
 } from "@chakra-ui/react";
-import { matchKeys } from "../../Manage/Match/constants";
+import { matchKeys, MatchWithForeignKey } from "../../manage/match/constants";
 
 interface IViewMatchTableProps {
     data: MatchWithForeignKey[];
@@ -20,45 +21,49 @@ interface IViewMatchTableProps {
 export const ViewMatchTable: React.FC<IViewMatchTableProps> = ({
     data,
 }) => {
-
     return (
         <Box>
-            <Box m={4} textDecoration="underline">
-                Matches
-            </Box>
-            <Table variant="simple">
-                <Thead>
-                    <Tr>
-                        {matchKeys.map((key, index) => <Th key={index}>{key}</Th>)}
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {data.map((item: MatchWithForeignKey) => (
-                        <Tr key={item.id}>
-                            <Td>
-                                {item.HomeTeam.TeamName ?? ""}
-                            </Td>
+            {data.length > 0 ?
+                <Box>
+                    <Box m={4} textDecoration="underline">
+                        Matches
+                    </Box>
+                    <Table variant="simple">
+                        <Thead>
+                            <Tr>
+                                {matchKeys.map((key, index) => <Th key={index}>{key}</Th>)}
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            {data.map((item: MatchWithForeignKey) => (
+                                <Tr key={item.id}>
+                                    <Td>
+                                        {item.HomeTeam.TeamName ?? ""}
+                                    </Td>
 
-                            <Td>
+                                    <Td>
 
-                                {item.AwayTeam.TeamName ?? ""}
+                                        {item.AwayTeam.TeamName ?? ""}
 
-                            </Td>
+                                    </Td>
 
-                            <Td>
+                                    <Td>
 
-                                {item.HomeGoals}
-                            </Td>
+                                        {item.HomeGoals}
+                                    </Td>
 
-                            <Td>
+                                    <Td>
 
-                                {item.AwayGoals}
-                            </Td>
+                                        {item.AwayGoals}
+                                    </Td>
 
-                        </Tr>
-                    ))}
-                </Tbody>
-            </Table>
+                                </Tr>
+                            ))}
+                        </Tbody>
+                    </Table>
+                </Box> : <Flex pt={4} alignContent="center" justifyContent="center"><Text>
+                    No Matches Found
+                </Text></Flex>}
         </Box>
     );
 };

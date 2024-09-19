@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AllInput, MatchForm, TeamForm } from "./constants";
 import {
   Controller,
   FieldError,
@@ -20,22 +19,15 @@ import {
   Text,
   Flex,
 } from "@chakra-ui/react";
-import { Match, Team } from "@prisma/client";
+import { Team } from "@prisma/client";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { AllInput, FormStatus, IProcessedFormProps } from "./constants";
 
-export interface Form {
-  objectArray: TeamForm[] | MatchForm[];
-  setIsFirstForm: (value: boolean) => void;
-  refetch: () => void;
-  schema: Zod.AnyZodObject;
-  defaultValue: TeamForm | MatchForm;
-  checkGroupSize?: boolean;
-  data?: Team[] | Match[];
-  onSubmitSecondForm: (results: { [x: string]: any }) => void;
-}
 
-export const SecondForm: React.FC<Form> = ({
+export const ProcessedForm: React.FC<IProcessedFormProps> = ({
   objectArray,
-  setIsFirstForm,
+  setFormStatus,
   data,
   schema,
   defaultValue,
@@ -55,16 +47,20 @@ export const SecondForm: React.FC<Form> = ({
     },
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: "teams",
   });
 
   const onBack = () => {
-    setIsFirstForm(true);
+    setFormStatus(FormStatus.INITIAL_FORM)
   };
 
   const onSubmit = async (results: z.infer<typeof schema>) => {
+    setIsSubmitting(true);
     if (checkGroupSize) {
       const teamData = data as Team[];
       const groupOneCount =
@@ -91,7 +87,15 @@ export const SecondForm: React.FC<Form> = ({
       }
       clearErrors("teams");
     }
-    await onSubmitSecondForm(results);
+    try{
+      await onSubmitSecondForm(results);
+    } catch {
+      toast.error("Error submitting form");
+    }finally {
+      setIsSubmitting(false);
+    }
+    
+
   };
 
   return (
@@ -116,9 +120,9 @@ export const SecondForm: React.FC<Form> = ({
             {fields.map((field, index) => (
               <Tr key={field.id}>
                 {Object.keys(objectArray[0]).map(
-                  (key, index) => {
+                  (key, keyIndex) => {
                     return (
-                      <Td key={index}>
+                      <Td key={keyIndex}>
                         <Controller
                           name={`teams.${index}.${key}`}
                           control={control}
@@ -131,7 +135,7 @@ export const SecondForm: React.FC<Form> = ({
                         <Box minH="24px">
                           {errors.teams && (errors.teams[index as keyof typeof errors.team]?.[key] as FieldError) && (
                             <Text color="red.500">
-                                  {(errors.teams[index as keyof typeof errors.team]?.[key] as FieldError)?.message ?? ""}
+                              {(errors.teams[index as keyof typeof errors.team]?.[key] as FieldError)?.message ?? ""}
 
                             </Text>
                           )}
@@ -165,8 +169,9 @@ export const SecondForm: React.FC<Form> = ({
         <Button mr={2} type="button" onClick={() => append(defaultValue)}>
           Add Team
         </Button>
-
-        <Button mr={2} colorScheme="teal" onClick={handleSubmit(onSubmit)}>
+        
+        <Button mr={2} colorScheme="teal" onClick={handleSubmit(onSubmit)} disabled={isSubmitting}
+          isLoading={isSubmitting}>
           Submit
         </Button>
       </Flex>

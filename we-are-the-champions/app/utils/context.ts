@@ -1,13 +1,15 @@
-import { Team } from "@prisma/client";
 import { createContext, useContext } from "react";
+import { TeamWithForeignKey } from "./constants";
+
 
 interface TeamContextProps {
-    data: Team[];
+    data: TeamWithForeignKey[];
     teamNames: Set<string>;
     refetch: () => void;
     teamNameToId: Map<string, number>;
     teamIdToName: Map<number, string>;
     teamNameToGroup: Map<string, number>;
+    isTeamFetching: boolean;
   };
 
   export const TeamContext = createContext<TeamContextProps>({
@@ -19,6 +21,7 @@ interface TeamContextProps {
       teamNameToId: new Map(),
       teamIdToName: new Map(),
       teamNameToGroup: new Map(),
+      isTeamFetching: false
   });
 
   export const useTeamContext = () => {

@@ -1,13 +1,18 @@
 "use client"
-import { AddMatchForm } from "./AddMatchForm/AddMatchForm";
+import { CreateMatchForm } from "./CreateMatchForm";
 import { EditMatchTable } from "./EditMatchTable";
 import { useQuery } from "@tanstack/react-query";
-import { MatchWithForeignKey } from "@/app/utils/constants";
 import toast from "react-hot-toast";
 import { CustomisedLoader } from "../../ui/CustomisedLoader";
+import { MatchWithForeignKey } from "./constants";
+import { Divider } from "@chakra-ui/react";
 
-export const ManageMatches = () => {
-  const { data, isLoading, refetch } = useQuery<MatchWithForeignKey[], Error>(
+interface IManageMatchesProps {
+  isManageTeam: boolean;
+}
+
+export const ManageMatches:React.FC<IManageMatchesProps> = ({isManageTeam}) => {
+  const { data, isLoading, isFetching, refetch } = useQuery<MatchWithForeignKey[], Error>(
     {
       queryKey: ["matches"],
       queryFn: async () => {
@@ -19,18 +24,20 @@ export const ManageMatches = () => {
         return response.json();
       },
       refetchOnWindowFocus: false,
+      enabled: isManageTeam === false
     }
   );
 
   return (
     <div>
-      {isLoading ? (   
-        <CustomisedLoader/>
+      {isLoading ? (
+        <CustomisedLoader />
       ) : (
         <div>
-          <AddMatchForm />
+          <CreateMatchForm refetchMatch={refetch}/>
+          <Divider borderWidth="2px" my={4} />
 
-          <EditMatchTable data={data ?? []} refetchMatch={refetch}/>
+          <EditMatchTable data={data ?? []} refetchMatch={refetch} isMatchFetching={isFetching} />
         </div>
       )}
     </div>

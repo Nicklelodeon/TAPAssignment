@@ -1,18 +1,20 @@
-import { TeamOutput } from "@/app/api/team/route";
-import { Table, Thead, Tbody, Tr, Th, Td, Box, Heading, Text, Stack, Grid, GridItem, Divider, TableContainer} from "@chakra-ui/react";
+import { matchKeys, MatchWithForeignKey } from "@/app/components/manage/match/constants";
+import { TeamWithForeignKey } from "@/app/utils/constants";
+import { Table, Thead, Tbody, Tr, Th, Td, Box, Heading, Text, Stack, Grid, GridItem, Divider, TableContainer } from "@chakra-ui/react";
 
 const Page = async ({ params }: { params: { teamId: string } }) => {
   const teamId = params.teamId;
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/team?teamId=${teamId}`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/get-team-details?teamId=${teamId}`, {
     method: "GET",
+    cache: "no-store"
   });
-  const teamData: TeamOutput = await response.json();
+  const teamData: TeamWithForeignKey = await response.json();
   return (
-    <Box p={6} maxWidth="1200px" mx="auto">
+    <Box p={6} >
 
       {teamData ? (
         <Box>
-          <Heading as="h2" size="md" mb={4} textDecoration="underline">
+          <Heading size="md" mb={4} textDecoration="underline">
             Team Details
           </Heading>
 
@@ -50,25 +52,23 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
             </GridItem>
           </Grid>
 
-          <Heading as="h2" size="md" mb={4}>
+          <Heading size="md" mb={4}>
             Home Matches
           </Heading>
           <TableContainer mb={6}>
-            <Table variant="striped" colorScheme="teal">
+            <Table variant="simple" >
               <Thead>
                 <Tr>
-                  <Th>Match ID</Th>
-                  <Th>Home Team</Th>
-                  <Th>Away Team</Th>
-                  <Th>Home Goals</Th>
-                  <Th>Away Goals</Th>
+                  {matchKeys.map((key, index) => {
+                    return <Th key={index}>{key}</Th>
+                  })}
+
                 </Tr>
               </Thead>
               <Tbody>
-                {teamData.HomeMatches.length > 0 ? (
-                  teamData.HomeMatches.map((match: any) => (
+                {teamData.HomeMatches && teamData.HomeMatches.length > 0 ? (
+                  teamData?.HomeMatches?.map((match: MatchWithForeignKey) => (
                     <Tr key={match.id}>
-                      <Td>{match.id}</Td>
                       <Td>{match.HomeTeam.TeamName}</Td>
                       <Td>{match.AwayTeam.TeamName}</Td>
                       <Td>{match.HomeGoals}</Td>
@@ -86,25 +86,22 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
             </Table>
           </TableContainer>
 
-          <Heading as="h2" size="md" mb={4}>
+          <Heading size="md" mb={4}>
             Away Matches
           </Heading>
           <TableContainer mb={6}>
-            <Table variant="striped" colorScheme="teal">
+            <Table variant="simple" >
               <Thead>
                 <Tr>
-                  <Th>Match ID</Th>
-                  <Th>Home Team</Th>
-                  <Th>Away Team</Th>
-                  <Th>Home Goals</Th>
-                  <Th>Away Goals</Th>
+                  {matchKeys.map((key, index) => {
+                    return <Th key={index}>{key}</Th>
+                  })}
                 </Tr>
               </Thead>
               <Tbody>
-                {teamData.AwayMatches.length > 0 ? (
-                  teamData.AwayMatches.map((match: any) => (
+                {teamData.AwayMatches && teamData.AwayMatches.length > 0 ? (
+                  teamData.AwayMatches.map((match: MatchWithForeignKey) => (
                     <Tr key={match.id}>
-                      <Td>{match.id}</Td>
                       <Td>{match.HomeTeam.TeamName}</Td>
                       <Td>{match.AwayTeam.TeamName}</Td>
                       <Td>{match.HomeGoals}</Td>

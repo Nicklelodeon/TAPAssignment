@@ -14,12 +14,13 @@ const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
   session: {
+    maxAge: 24 * 60 * 60,
     strategy: 'jwt',
   },
   pages: {
-    signIn: '/auth/signin',   // Custom sign-in page
-    signOut: '/auth/signout', // Custom sign-out page
-    error: '/auth/error',     // Custom error page
+    signIn: '/auth/signin',
+    signOut: '/auth/signout',
+    error: '/auth/error',
   },
 
   callbacks: {
@@ -40,10 +41,29 @@ const authOptions: AuthOptions = {
 
 
     async redirect({ url, baseUrl }) {
-      if (url === '/api/auth/callback/google') {
-        return `${baseUrl}/manage`;
+      try {
+        
+        if (url) {
+          return url;
+        }
+        return baseUrl;
+      } catch {
+        return baseUrl;
       }
-      return baseUrl;
+    },
+
+    async jwt({ token, user }) {
+      if (user) {
+        token.userId = user.id;
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (token && session.user) {
+        session.user.userId = token.userId as string;
+      }
+      return session;
     },
   },
 };
