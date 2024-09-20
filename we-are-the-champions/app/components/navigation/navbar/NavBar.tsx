@@ -10,14 +10,17 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export const NavBar = () => {
 
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
 
   const isActive = (path: string) => pathname === path;
-
+  console.log(pathname);
 
   const { data: session, status } = useSession();
 
@@ -106,7 +109,7 @@ export const NavBar = () => {
               <Button
                 colorScheme="teal"
                 variant="outline"
-                onClick={() => signIn("google")}
+                onClick={() => signIn('google', { callbackUrl})}
               >
                 Sign In
               </Button>

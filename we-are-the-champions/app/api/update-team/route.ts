@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/utils/prisma";
-import { Logs, Team } from "@prisma/client";
-import { checkToken, craftLogMessage, LogType, ObjectType } from "@/app/utils/constants";
+import { Logs } from "@prisma/client";
+import {
+  checkToken,
+  craftLogMessage,
+  LogType,
+  ObjectType,
+} from "@/app/utils/constants";
+import {
+  IAPIUpdateTeamInput,
+  IUpdateTeam,
+  checkIAPIUpdateTeamInput,
+} from "@/app/types/api/update-team";
 
 export async function PUT(req: NextRequest) {
   try {
@@ -14,15 +24,22 @@ export async function PUT(req: NextRequest) {
     }
     const userId = token?.userId;
     const username = token?.username;
-    const team: Team = await req.json();
+    const payload: IAPIUpdateTeamInput = await req.json();
+    if (!checkIAPIUpdateTeamInput(payload)) {
+      return NextResponse.json(
+        { message: "Invalid data format" },
+        { status: 400 }
+      );
+    }
+    const team: IUpdateTeam = payload.team;
 
     const oldTeam = await prisma.team.findUnique({
       where: { id: team.id },
       select: {
         TeamName: true,
         RegistrationDate: true,
-      }
-    })
+      },
+    });
 
     const updateTeam = await prisma.team.update({
       where: { id: team.id },
@@ -30,35 +47,39 @@ export async function PUT(req: NextRequest) {
       select: {
         TeamName: true,
         RegistrationDate: true,
-        GroupNumber: true
-      }
+        GroupNumber: true,
+      },
     });
 
     const teamNamesArray = [
       {
-        OldTeamName: oldTeam?.TeamName ?? "", 
+        OldTeamName: oldTeam?.TeamName ?? "",
         OldTeamRegistrationDate: oldTeam?.RegistrationDate.toDateString() ?? "",
         NewTeamName: updateTeam.TeamName,
-        NewTeamRegistrationDate: updateTeam.RegistrationDate.toDateString() ?? "",
-        GroupNumber: String(updateTeam.GroupNumber)
-  
-      }
-    ]
+        NewTeamRegistrationDate:
+          updateTeam.RegistrationDate.toDateString() ?? "",
+        GroupNumber: String(updateTeam.GroupNumber),
+      },
+    ];
 
     const currentDate = new Date();
-    const logMessage = craftLogMessage(ObjectType.TEAM, LogType.LOG_UPDATE, teamNamesArray, username!, currentDate);
+    const logMessage = craftLogMessage(
+      ObjectType.TEAM,
+      LogType.LOG_UPDATE,
+      teamNamesArray,
+      username!,
+      currentDate
+    );
     const logData: Omit<Logs, "id"> = {
       Message: logMessage,
       UserId: userId as string,
       LogType: `${LogType.LOG_UPDATE} ${ObjectType.TEAM}`,
-      Date: currentDate
-
-    }
+      Date: currentDate,
+    };
 
     await prisma.logs.create({
-      data: logData
-    }
-    )
+      data: logData,
+    });
 
     return NextResponse.json(updateTeam, { status: 200 });
   } catch (error) {

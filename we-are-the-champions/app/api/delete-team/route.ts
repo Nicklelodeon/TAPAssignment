@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/utils/prisma";
 import { checkToken, craftLogMessage, LogType, ObjectType } from "@/app/utils/constants";
 import { Logs } from "@prisma/client";
+import { IAPIDeleteTeamInput, checkIAPIDeleteTeamInput } from "@/app/types/api/delete-team";
 
 export async function DELETE(req: NextRequest) {
   try {
@@ -14,8 +15,15 @@ export async function DELETE(req: NextRequest) {
     }
     const userId = token?.userId;
     const username = token?.username;
-    const id = await req.json();
+    const payload: IAPIDeleteTeamInput = await req.json();
 
+    if (!checkIAPIDeleteTeamInput(payload)) {
+      return NextResponse.json(
+        { message: "Invalid data format" },
+        { status: 400 }
+      );
+    }
+    const id = payload.teamId;
     const teamName = await prisma.team.findUnique({
       where: {id: id},
       select: {

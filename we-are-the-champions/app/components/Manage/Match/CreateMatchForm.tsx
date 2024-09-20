@@ -1,39 +1,42 @@
-"use client";
-
 import { useContext, useEffect, useState } from "react";
 
 import {
   FormStatus,
-  initialFormSchemaMatches,
+  FormatValidationFormSchemaMatches,
   MatchForm,
   TeamForm,
 } from "../constants";
 import { TeamContext } from "@/app/utils/context";
-import { InitialForm } from "../InitialForm";
-import { ProcessedForm } from "../ProcessedForm";
+import { FormatValidationForm } from "../FormatValidationForm";
+import { InputValidationForm } from "../InputValidationForm";
 import { Match } from "@prisma/client";
 import toast from "react-hot-toast";
 import { MatchMessage, multipleMatchSchema } from "./constants";
 import { Button, Flex } from "@chakra-ui/react";
+import { IAPICreateMatchInput } from "@/app/types/api/create-match";
 
 interface ICreateMatchForm {
   refetchMatch: () => void;
+  matchesPlayed: Map<string, Set<string>>
 }
 
-export const CreateMatchForm: React.FC<ICreateMatchForm> = ({refetchMatch}) => {
-  const [formStatus, setFormStatus] = useState<FormStatus>(FormStatus.ADD_BUTTON);
+export const CreateMatchForm: React.FC<ICreateMatchForm> = ({
+  refetchMatch,
+  matchesPlayed
+}) => {
+  const [formStatus, setFormStatus] = useState<FormStatus>(
+    FormStatus.ADD_BUTTON
+  );
   const [matches, setMatches] = useState<MatchForm[]>([]);
-  const { teamNames, teamNameToId, teamNameToGroup } = useContext(TeamContext);
-
+  const { teamNames, teamNameToId, teamNameToGroup, refetch: refetchTeam } = useContext(TeamContext);
 
   useEffect(() => {
     if (matches.length > 0) {
-      setFormStatus(FormStatus.PROCESSED_FORM)
+      setFormStatus(FormStatus.PROCESSED_FORM);
     }
   }, [matches, setMatches]);
 
-  const onSubmitInitialForm = (data: { inputText: string }) => {
-
+  const onSubmitFormatValidationForm = (data: { inputText: string }) => {
     const rows = data.inputText.trim().split("\n");
     const allMatches: MatchForm[] = [];
 
@@ -54,37 +57,45 @@ export const CreateMatchForm: React.FC<ICreateMatchForm> = ({refetchMatch}) => {
     setMatches(allMatches);
   };
 
-  const onSubmitProcessedForm = async (results: { [x: string]: TeamForm[] | MatchForm[]}) => {
+  const onSubmitInputValidationForm = async (results: {
+    teams: TeamForm[] | MatchForm[];
+  }) => {
     const matchForms = results.teams as MatchForm[];
+
     const matches: Omit<Match, "id">[] = matchForms.map((match: MatchForm) => ({
       HomeTeamId: teamNameToId.get(match.HomeTeam) ?? -1,
       AwayTeamId: teamNameToId.get(match.AwayTeam) ?? -1,
       HomeGoals: match.HomeTeamGoal,
       AwayGoals: match.AwayTeamGoal,
     }));
+    const payload: IAPICreateMatchInput = {
+      matches,
+    };
     try {
       const response = await fetch("/api/create-match", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(matches),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        toast.error(MatchMessage.ADD_MATCH_FAILURE);
+        const error = await response.json();
+        toast.error(error.message || MatchMessage.ADD_MATCH_FAILURE);
         return;
       }
       toast.success(MatchMessage.ADD_MATCH_SUCCESS);
       refetchMatch();
+      // update team statistics based on changes to match
+      refetchTeam();
       setFormStatus(FormStatus.ADD_BUTTON);
     } catch {
       toast.error(MatchMessage.ADD_MATCH_FAILURE);
     }
   };
 
-  const initialFormSchema = initialFormSchemaMatches;
-  const validateFormSchema = multipleMatchSchema(teamNames, teamNameToGroup);
+  const validateFormSchema = multipleMatchSchema(teamNames, teamNameToGroup, matchesPlayed);
 
   const defaultValue = {
     HomeTeam: "",
@@ -105,15 +116,20 @@ export const CreateMatchForm: React.FC<ICreateMatchForm> = ({refetchMatch}) => {
           </Button>
         </Flex>
       ) : formStatus === FormStatus.INITIAL_FORM ? (
-        <InitialForm onSubmit={onSubmitInitialForm} textPlaceholder="Enter your matches here..." schema={initialFormSchema} />
+        <FormatValidationForm
+          onSubmit={onSubmitFormatValidationForm}
+          textPlaceholder="Enter your matches here..."
+          schema={FormatValidationFormSchemaMatches}
+          inputLineLength={4}
+        />
       ) : (
-        <ProcessedForm
+        <InputValidationForm
           objectArray={matches}
           setFormStatus={setFormStatus}
           schema={validateFormSchema}
-          refetch={refetchMatch}
           defaultValue={defaultValue}
-          onSubmitSecondForm={onSubmitProcessedForm}
+          formName="Match"
+          onSubmitInputValidationForm={onSubmitInputValidationForm}
         />
       )}
     </div>

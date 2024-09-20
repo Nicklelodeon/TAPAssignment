@@ -124,3 +124,4 @@ export enum LogType {
     LOG_DELETE = "DELETED",
     LOG_UPDATE = "UPDATED"
 }
+

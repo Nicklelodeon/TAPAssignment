@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/utils/prisma";
-import { Logs, Match } from "@prisma/client";
+import { Logs} from "@prisma/client";
 import { calculatePointsForDeletion, checkToken, craftLogMessage, LogType, ObjectType } from "@/app/utils/constants";
+import { IAPIDeleteMatchInput, checkIAPIDeleteMatchInput } from "@/app/types/api/delete-match";
 
 export async function DELETE(req: NextRequest) {
   try {
@@ -14,17 +15,24 @@ export async function DELETE(req: NextRequest) {
     }
     const userId = token?.userId;
     const username = token?.username;
-    const match: Match = await req.json();
-
+    const payload: IAPIDeleteMatchInput = await req.json();
+    
+    if (!checkIAPIDeleteMatchInput(payload)) {
+      return NextResponse.json(
+        { message: "Invalid data format" },
+        { status: 400 }
+      );
+    }
+    const match = payload.match;
     // for logging
     const teams = await prisma.match.findUnique({
       where: { id: match.id },
       select: {
         HomeTeam: {
-          select: { TeamName: true }, // Only get the HomeTeam's name
+          select: { TeamName: true },
         },
         AwayTeam: {
-          select: { TeamName: true }, // Only get the AwayTeam's name
+          select: { TeamName: true },
         },
       },
     });

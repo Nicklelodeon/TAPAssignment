@@ -9,18 +9,9 @@ import {
   ObjectType,
 } from "@/app/utils/constants";
 import { Logs } from "@prisma/client";
+import { IAPIUpdateMatchInput, checkIAPIUpdateMatchInput } from "@/app/types/api/update-match";
 
-interface updateMatch {
-  id: number;
-  HomeTeamId: number;
-  AwayTeamId: number;
-  HomeGoals: number;
-  AwayGoals: number;
-  NewHomeTeamId: number;
-  NewAwayTeamId: number;
-  NewHomeGoals: number;
-  NewAwayGoals: number;
-}
+
 
 export async function PUT(req: NextRequest) {
   try {
@@ -33,8 +24,17 @@ export async function PUT(req: NextRequest) {
     }
     const userId = token?.userId;
     const username = token?.username;
-    const match: updateMatch = await req.json();
+    const payload:IAPIUpdateMatchInput = await req.json();
+    
+    if (!checkIAPIUpdateMatchInput(payload)) {
+      return NextResponse.json(
+        { message: "Invalid data format" },
+        { status: 400 }
+      );
+    }
 
+    const match = payload.match;
+    
     const oldMatchData = await prisma.match.findUnique({
       where: { id: match.id },
       select: {

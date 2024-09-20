@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/utils/prisma";
-import { calculatePointsForAddition, checkToken, craftLogMessage, LogType, ObjectType } from "@/app/utils/constants";
-import { Logs, Match } from "@prisma/client";
+import {
+  calculatePointsForAddition,
+  checkToken,
+  craftLogMessage,
+  LogType,
+  ObjectType,
+} from "@/app/utils/constants";
+import { Logs } from "@prisma/client";
+import {
+  IAPICreateMatchInput,
+  checkIAPICreateMatchInput,
+} from "@/app/types/api/create-match";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,13 +24,15 @@ export async function POST(req: NextRequest) {
     }
     const userId = token?.userId;
     const username = token?.username;
-    const matches: Omit<Match, "id"> = await req.json();
-    if (!Array.isArray(matches)) {
+    const payload: IAPICreateMatchInput = await req.json();
+
+    if (!checkIAPICreateMatchInput(payload)) {
       return NextResponse.json(
         { message: "Invalid data format" },
         { status: 400 }
       );
     }
+    const matches = payload.matches;
 
     await prisma.match.createMany({
       data: matches,
@@ -52,24 +64,31 @@ export async function POST(req: NextRequest) {
         }),
       ]);
 
-      return { homeTeamName: homeTeam.TeamName, awayTeamName: awayTeam.TeamName };
+      return {
+        homeTeamName: homeTeam.TeamName,
+        awayTeamName: awayTeam.TeamName,
+      };
     });
 
     const teamNamesArray = await Promise.all(teamUpdatesPromises);
     const currentDate = new Date();
-    const logMessage = craftLogMessage(ObjectType.MATCH, LogType.LOG_CREATE, teamNamesArray, username!, currentDate);
+    const logMessage = craftLogMessage(
+      ObjectType.MATCH,
+      LogType.LOG_CREATE,
+      teamNamesArray,
+      username!,
+      currentDate
+    );
     const logData: Omit<Logs, "id"> = {
       Message: logMessage,
       UserId: userId as string,
       LogType: `${LogType.LOG_CREATE} ${ObjectType.MATCH}`,
-      Date: currentDate
-
-    }
+      Date: currentDate,
+    };
 
     await prisma.logs.create({
-      data: logData
-    }
-    )
+      data: logData,
+    });
 
     return NextResponse.json(
       { message: "Successfully added matches " },

@@ -80,10 +80,10 @@ model Match {
 }
 
 model Logs {
-  id      Int    @id @default(autoincrement())
+  id      Int      @id @default(autoincrement())
   Message String
   UserId  String
-  User    User   @relation("Logs", fields: [UserId], references: [id])
-  Date    DateTime 
-  LogType String 
+  Date    DateTime
+  LogType String
+  User    User     @relation("Logs", fields: [UserId], references: [id])
 }

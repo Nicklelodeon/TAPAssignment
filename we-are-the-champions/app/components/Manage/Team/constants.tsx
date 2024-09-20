@@ -1,7 +1,6 @@
 import { dateParser } from "@/app/utils/constants";
 import { z } from "zod";
 
-
 // used to restrict editing of group number for edits
 export const singleTeamSchemaWithoutGroupNumber = (teamNames: Set<string>) =>
   z.object({
@@ -22,7 +21,6 @@ export const singleTeamSchemaWithoutGroupNumber = (teamNames: Set<string>) =>
       }),
   });
 
-
 export const singleTeamSchema = (teamNames: Set<string>) =>
   z.object({
     TeamName: z
@@ -40,19 +38,26 @@ export const singleTeamSchema = (teamNames: Set<string>) =>
       .refine((value) => dateParser(value)! < new Date(), {
         message: "Date cannot be greater than todays date",
       }),
-    GroupNumber: z
-      .number()
-      .int()
-      .positive()
-      .refine((value) => value <= 2 && value > 0, {
-        message: "Group Number can only be 1 or 2",
-      }),
+    GroupNumber: z.preprocess(
+      (value) => {
+        if (typeof value === "string" && value.trim() === "") return undefined;
+        return Number(value);
+      },
+      z
+        .number()
+        .int("Group number must be an integer")
+        .positive("Group number must be a positive number")
+        .refine((value) => value <= 2 && value > 0, {
+          message: "Group Number can only be 1 or 2",
+        })
+    ),
   });
 
 export const multipleTeamSchema = (teamNames: Set<string>) =>
-  z.object({
-    teams: z.array(singleTeamSchema(teamNames)),
-  })
+  z
+    .object({
+      teams: z.array(singleTeamSchema(teamNames)),
+    })
     .superRefine((data, ctx) => {
       const teamNamesInInput = new Set<string>();
 
@@ -65,10 +70,8 @@ export const multipleTeamSchema = (teamNames: Set<string>) =>
           });
         }
         teamNamesInInput.add(team.TeamName);
-      })
-    }
-    );
-
+      });
+    });
 
 export const teamKeys = [
   "Ranking",
@@ -77,14 +80,16 @@ export const teamKeys = [
   "Group",
   "Normal Points",
   "Goals Scored",
-  "Tie Breaker Points"];
+  "Tie Breaker Points",
+];
 
 export enum TeamMessage {
-  ADD_TEAM_SUCCESS = "Successfuly added teams. Please click refetch after 5 seconds",
+  ADD_TEAM_SUCCESS = "Successfuly added teams. Please click refetch after 5 seconds if table is not updated.",
   ADD_TEAM_FAILURE = "Error adding team. Please try again.",
-  UPDATE_TEAM_SUCCESS = "Successfuly updated team. Please click refetch after 5 seconds",
+  UPDATE_TEAM_SUCCESS = "Successfuly updated team. Please click refetch after 5 seconds if table is not updated.",
   UPDATE_TEAM_FAILURE = "Error updating team. Please try again.",
-  DELETE_TEAM_SUCCESS = "Successfuly deleted team. Please click refetch after 5 seconds",
-  DELETE_TEAM_FAILURE = "Error deleting team. Please try again."
-
+  DELETE_TEAM_SUCCESS = "Successfuly deleted team. Please click refetch after 5 seconds if table is not updated.",
+  DELETE_TEAM_FAILURE = "Error deleting team. Please try again.",
+  FETCH_TEAM_FAILURE = "Error fetching teams. Please try again",
+  FETCH_TEAM_SUCCESS = "Successfully fetched teams."
 }

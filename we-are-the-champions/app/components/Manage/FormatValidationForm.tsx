@@ -4,24 +4,47 @@ import { z } from "zod";
 import { Box, Button, Flex, Text, Textarea } from "@chakra-ui/react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { IInitialFormProps } from "./constants";
+import { IFormatValidationFormProps } from "./constants";
 
-export const InitialForm: React.FC<IInitialFormProps> = ({ onSubmit, textPlaceholder, schema }) => {
-
+export const FormatValidationForm: React.FC<IFormatValidationFormProps> = ({
+  onSubmit,
+  textPlaceholder,
+  schema,
+  inputLineLength,
+}) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-
 
   type FormData = z.infer<typeof schema>;
 
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
+  // auto spacing once inputLineLength is hit
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.endsWith(" ")) {
+      setValue("inputText", value);
+      return;
+    }
+    const words = value.trim().split(/\s+/);
+    let newValue = "";
+    for (let i = 0; i < words.length; i += inputLineLength) {
+      const group = words.slice(i, i + inputLineLength).join(" ");
+      newValue += group;
+      if (i + inputLineLength < words.length) {
+        newValue += "\n";
+      }
+    }
+    setValue("inputText", newValue);
+  };
+
+  // Join the formatted lines back into a single string
   const handleFormSubmit = async (data: { inputText: string }) => {
     setIsSubmitting(true);
     try {
@@ -44,6 +67,7 @@ export const InitialForm: React.FC<IInitialFormProps> = ({ onSubmit, textPlaceho
             <Box position="relative">
               <Textarea
                 {...field}
+                onChange={handleInputChange}
                 rows={10}
                 resize="none"
                 overflow="auto"
@@ -70,7 +94,7 @@ export const InitialForm: React.FC<IInitialFormProps> = ({ onSubmit, textPlaceho
         disabled={isSubmitting}
         isLoading={isSubmitting}
       >
-        Process Form
+        Validate Input Format
       </Button>
     </Flex>
   );

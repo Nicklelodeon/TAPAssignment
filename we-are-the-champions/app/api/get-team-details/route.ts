@@ -6,7 +6,13 @@ import { prisma } from "@/app/utils/prisma";
 export async function GET(req: NextRequest) {
     const { searchParams } = req.nextUrl;
     const teamId = searchParams.get("teamId");
-  
+
+    if (!teamId) {
+      return NextResponse.json(
+        { message: "Invalid data format" },
+        { status: 400 }
+      );
+    }
     try {
       const teamIdNumber = Number(teamId);
   

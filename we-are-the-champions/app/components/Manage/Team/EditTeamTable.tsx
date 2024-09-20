@@ -24,12 +24,13 @@ import toast from "react-hot-toast";
 import { singleTeamSchemaWithoutGroupNumber, teamKeys, TeamMessage } from "./constants";
 import { CustomisedLoader } from "../../ui/CustomisedLoader";
 import { TeamWithForeignKey } from "@/app/utils/constants";
+import { IAPIDeleteTeamInput } from "@/app/types/api/delete-team";
+import { IAPIUpdateTeamInput, IUpdateTeam } from "@/app/types/api/update-team";
 
 
 export const EditTeamTable = () => {
   const { data, teamNames, refetch: refetchTeam, isTeamFetching } = useTeamContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currTeamNames, setCurrentTeamNames] = useState(teamNames);
   const [groupNumber, setGroupNumber] = useState(1);
   const [filteredTeams, setFilteredTeams] = useState(
     data.filter((team) => team.GroupNumber === 1)
@@ -37,14 +38,12 @@ export const EditTeamTable = () => {
   const [editingId, setEditingId] = useState(-1);
   const [deletingId, setDeletingId] = useState(-1);
 
-  useEffect(() => {
-    setCurrentTeamNames(teamNames);
-  }, [teamNames]);
+
 
   useEffect(() => {
     setFilteredTeams(data.filter((team) => team.GroupNumber === groupNumber));
   }, [groupNumber, setGroupNumber, data]);
-  const schema = singleTeamSchemaWithoutGroupNumber(currTeamNames);
+  const schema = singleTeamSchemaWithoutGroupNumber(teamNames);
 
   const {
     control,
@@ -62,8 +61,7 @@ export const EditTeamTable = () => {
 
   const handleEdit = (item: TeamWithForeignKey) => {
     setEditingId(item.id);
-    currTeamNames.delete(item.TeamName);
-    setCurrentTeamNames(currTeamNames);
+    teamNames.delete(item.TeamName);
 
     setValue("TeamName", item.TeamName);
     setValue("RegistrationDate", moment(item.RegistrationDate).format("DD/MM"));
@@ -72,20 +70,25 @@ export const EditTeamTable = () => {
   const onSubmit = async (data: z.infer<typeof schema>) => {
     setIsSubmitting(true);
     try {
-      const updatedData = {
-        ...data,
+      const updatedData: IUpdateTeam = {
+        TeamName: data.TeamName,
         id: editingId,
         RegistrationDate: moment(data.RegistrationDate, "DD/MM").toDate(),
       };
 
+      const payload: IAPIUpdateTeamInput = {
+        team: updatedData
+      }
+
       const response = await fetch("/api/update-team", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        toast.error(TeamMessage.UPDATE_TEAM_FAILURE);
+        const error = await response.json();
+        toast.error(error.message || TeamMessage.UPDATE_TEAM_FAILURE);
         return;
       }
       toast.success(TeamMessage.UPDATE_TEAM_SUCCESS);
@@ -105,14 +108,18 @@ export const EditTeamTable = () => {
   const handleDelete = async (item: TeamWithForeignKey) => {
     setDeletingId(item.id);
     setIsSubmitting(true);
+    const payload: IAPIDeleteTeamInput = {
+      teamId: item.id ?? -1
+    }
     try {
       const response = await fetch("/api/delete-team", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(item.id),
+        body: JSON.stringify(payload),
       });
       if (!response.ok) {
-        toast.error(TeamMessage.DELETE_TEAM_FAILURE);
+        const error = await response.json();
+        toast.error(error.message || TeamMessage.DELETE_TEAM_FAILURE);
         return;
       }
       toast.success(TeamMessage.DELETE_TEAM_SUCCESS);
