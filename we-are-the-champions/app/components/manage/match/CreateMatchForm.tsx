@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import { MatchMessage, multipleMatchSchema } from "./constants";
 import { Button, Flex } from "@chakra-ui/react";
 import { IAPICreateMatchInput } from "@/app/types/api/create-match";
+import Box from "next-auth/providers/box";
 
 interface ICreateMatchForm {
   refetchMatch: () => void;
@@ -104,7 +105,7 @@ export const CreateMatchForm: React.FC<ICreateMatchForm> = ({
     AwayTeamGoal: 0,
   };
   return (
-    <div>
+    <Box>
       {formStatus === FormStatus.ADD_BUTTON ? (
         <Flex align="center" justifyContent="center">
           <Button
@@ -132,6 +133,6 @@ export const CreateMatchForm: React.FC<ICreateMatchForm> = ({
           onSubmitInputValidationForm={onSubmitInputValidationForm}
         />
       )}
-    </div>
+    </Box>
   );
 };

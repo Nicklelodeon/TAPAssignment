@@ -4,7 +4,7 @@ import { EditMatchTable } from "./EditMatchTable";
 import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { CustomisedLoader } from "../../ui/CustomisedLoader";
-import { Divider } from "@chakra-ui/react";
+import { Box, Divider } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { MatchMessage, MatchWithForeignKey } from "./constants";
 
@@ -62,11 +62,11 @@ export const ManageMatches: React.FC<IManageMatchesProps> = ({
   }, [data]);
 
   return (
-    <div>
+    <Box>
       {isLoading ? (
         <CustomisedLoader />
       ) : (
-        <div>
+        <Box>
           <CreateMatchForm refetchMatch={refetch} matchesPlayed={matchesPlayed} />
           <Divider borderWidth="2px" my={4} />
 
@@ -76,8 +76,8 @@ export const ManageMatches: React.FC<IManageMatchesProps> = ({
             isMatchFetching={isFetching}
             matchesPlayed={matchesPlayed}
           />
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
