@@ -12,9 +12,8 @@ import { InputValidationForm } from "../InputValidationForm";
 import { Match } from "@prisma/client";
 import toast from "react-hot-toast";
 import { MatchMessage, multipleMatchSchema } from "./constants";
-import { Button, Flex } from "@chakra-ui/react";
+import { Button, Flex, Box } from "@chakra-ui/react";
 import { IAPICreateMatchInput } from "@/app/types/api/create-match";
-import Box from "next-auth/providers/box";
 
 interface ICreateMatchForm {
   refetchMatch: () => void;
