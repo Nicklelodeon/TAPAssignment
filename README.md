@@ -20,7 +20,8 @@ This application was completed as the technical assessment for GovTech TAP 2025.
 
 5. Run the following command to start the application:
 <pre>
-    docker-compose up -d 
+  npx prisma generate  
+  docker-compose up -d 
 </pre>
 
 <span style="color: red;">This command can only be executed with a .env file. Please contact me to get the .env file. </span>
