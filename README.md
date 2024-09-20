@@ -26,7 +26,15 @@ This application was completed as the technical assessment for GovTech TAP 2025.
 <span style="color: red;">This command can only be executed with a .env file. Please contact me to get the .env file. </span>
 
 
-5. Open a web browser and navigate to [https://localhost:3000](https://localhost:3000). You should see the home page.
+5. Open a web browser and navigate to [http://localhost:3000](http://localhost:3000). You should see the home page.
 
+
+## Design Considerations
+Attached are the design considerations I had in mind when designing the application: 
+[https://docs.google.com/document/d/1fATDbmPSFi2mL7OPnLG8fbLILtuSK8TrAdx7PiVO2TM/edit?usp=sharing](https://docs.google.com/document/d/1fATDbmPSFi2mL7OPnLG8fbLILtuSK8TrAdx7PiVO2TM/edit?usp=sharing)
+
+## Works in Progress
+Due to time limitations, some features which I was unable to implement, but plan to in the near future include
+1. Pagination for Logs and Matches, as there can be many entries
 
 
