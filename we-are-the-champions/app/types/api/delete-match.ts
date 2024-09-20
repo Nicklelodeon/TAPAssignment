@@ -9,7 +9,6 @@ export const checkIAPIDeleteMatchInput = (payload: IAPIDeleteMatchInput) => {
     return false;
   }
   const match = payload.match;
-  console.log(match);
   if (!Object.values(match).every((x) => x !== undefined)) {
     return false;
   }

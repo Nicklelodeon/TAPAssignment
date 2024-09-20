@@ -14,7 +14,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import toast from "react-hot-toast";
@@ -202,17 +202,8 @@ export const EditMatchTable: React.FC<IEditMatchTableProps> = ({
                       render={({ field }) => (
                         <Input
                           {...field}
-                          type="number"
+                          type="string"
                           placeholder="Home Team"
-                          value={field.value === undefined ? "" : field.value}
-                          onChange={(
-                            e: React.ChangeEvent<HTMLInputElement>
-                          ) => {
-                            const value = e.target.value;
-                            const parsedValue =
-                              value === "" ? "" : Number(value);
-                            field.onChange(parsedValue);
-                          }}
                         />
                       )}
                     />
@@ -236,17 +227,8 @@ export const EditMatchTable: React.FC<IEditMatchTableProps> = ({
                       render={({ field }) => (
                         <Input
                           {...field}
-                          type="number"
+                          type="string"
                           placeholder="Away Team"
-                          value={field.value === undefined ? "" : field.value}
-                          onChange={(
-                            e: React.ChangeEvent<HTMLInputElement>
-                          ) => {
-                            const value = e.target.value;
-                            const parsedValue =
-                              value === "" ? "" : Number(value);
-                            field.onChange(parsedValue);
-                          }}
                         />
                       )}
                     />
@@ -272,9 +254,15 @@ export const EditMatchTable: React.FC<IEditMatchTableProps> = ({
                           {...field}
                           type="number"
                           placeholder="Home Goals"
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
+                          value={field.value === undefined ? "" : field.value}
+                          onChange={(
+                            e: React.ChangeEvent<HTMLInputElement>
+                          ) => {
+                            const value = e.target.value;
+                            const parsedValue =
+                              value === "" ? "" : Number(value);
+                            field.onChange(parsedValue);
+                          }}
                         />
                       )}
                     />
@@ -300,9 +288,15 @@ export const EditMatchTable: React.FC<IEditMatchTableProps> = ({
                           {...field}
                           type="number"
                           placeholder="Away Goals"
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
+                          value={field.value === undefined ? "" : field.value}
+                          onChange={(
+                            e: React.ChangeEvent<HTMLInputElement>
+                          ) => {
+                            const value = e.target.value;
+                            const parsedValue =
+                              value === "" ? "" : Number(value);
+                            field.onChange(parsedValue);
+                          }}
                         />
                       )}
                     />

@@ -20,7 +20,6 @@ export const NavBar = () => {
   const callbackUrl = searchParams.get('callbackUrl') || '/';
 
   const isActive = (path: string) => pathname === path;
-  console.log(pathname);
 
   const { data: session, status } = useSession();
 
