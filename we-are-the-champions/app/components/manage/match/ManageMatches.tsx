@@ -4,9 +4,9 @@ import { EditMatchTable } from "./EditMatchTable";
 import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { CustomisedLoader } from "../../ui/CustomisedLoader";
-import { MatchMessage, MatchWithForeignKey } from "./constants";
 import { Divider } from "@chakra-ui/react";
 import { useMemo } from "react";
+import { MatchMessage, MatchWithForeignKey } from "./constants";
 
 interface IManageMatchesProps {
   isManageTeam: boolean;
