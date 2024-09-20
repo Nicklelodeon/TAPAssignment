@@ -5,6 +5,11 @@ We Are The Champions is a web application designed to help users simulate the fi
 
 Visit the app at this link now: [http://we-are-the-champions-alb-1-532758427.ap-southeast-1.elb.amazonaws.com](http://we-are-the-champions-alb-1-532758427.ap-southeast-1.elb.amazonaws.com)
 
+Use the following Google Id to login if you want to manage data or view logs:
+wearethechampionstestuser@gmail.com
+wearethechampions123
+
+
 This application was completed as the technical assessment for GovTech TAP 2025.
 
 ## Quick Start with Docker
