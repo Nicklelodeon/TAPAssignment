@@ -10,13 +10,13 @@ email: wearethechampionstestuser@gmail.com <br/>
 password: wearethechampions123
 
 
-This application was completed as the technical assessment for GovTech TAP 2025.
+This application was completed for the technical assessment for GovTech TAP 2025.
 
 ## Quick Start with Docker
 
 1. Ensure that you have Docker Compose installed on your device. If you don't have Docker Compose installed, you can follow the installation instructions on the official Docker website: [Install Docker Compose](https://docs.docker.com/compose/install/)
 
-2. Clone or download the source code of Weigh-To-Go application.
+2. Clone or download the source code of We Are The Champions application.
 
 3. Navigate to the directory containing the docker-compose.yml file.
   <pre>
@@ -41,5 +41,6 @@ Attached are the design considerations I had in mind when designing the applicat
 ## Works in Progress
 Due to time limitations, some features which I was unable to implement, but plan to in the near future include
 1. Pagination for Logs and Matches, as there can be many entries
+2. Making the app mobile friendly
 
 
