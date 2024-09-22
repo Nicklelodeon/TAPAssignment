@@ -23,9 +23,30 @@ This application was completed for the technical assessment for GovTech TAP 2025
     cd we-are-the-champions
   </pre>
 
-5. Run the following command to start the application:
+4. Run the following command to start the application:
 <pre>
   docker-compose up -d 
+</pre>
+
+<span style="color: red;">This command can only be executed with a .env file. Please contact me to get the .env file. </span>
+
+
+5. Open a web browser and navigate to [http://localhost:3000](http://localhost:3000). You should see the home page.
+
+## Running locally
+1. Ensure that you have npm installed on your device.
+
+2. Clone or download the source code of We Are The Champions application.
+
+3. Navigate to the directory containing the docker-compose.yml file.
+  <pre>
+    cd we-are-the-champions
+  </pre>
+
+4. Run the following command to start the application:
+<pre>
+  npm install
+  npm run dev
 </pre>
 
 <span style="color: red;">This command can only be executed with a .env file. Please contact me to get the .env file. </span>
